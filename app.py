@@ -287,7 +287,7 @@ elif menu == "Modelo de Previsão":
     if st.button('Prever'):
         with st.spinner('Realizando a previsão...'):
             try:
-                forecast = predict(days, data_scaled, sequence_length)
+                forecast = predict(days, data_scaled, sequence_length, model_lstm, scaler)
                 if forecast is None:
                     st.error("Ocorreu um erro durante a previsão. Verifique os logs para mais detalhes.")
                     st.stop()
