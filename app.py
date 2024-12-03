@@ -251,7 +251,7 @@ elif menu == "Modelo de Previsão":
         st.error(f"Erro ao carregar o modelo e o scaler: {e}")
         st.stop()
 
-    data_corte = pd.to_datetime('2000-01-01')
+    data_corte = pd.to_datetime('2024-08-01')
     try:
         df, data_scaled, _ = load_and_process_data(data_corte)
     except FileNotFoundError:
@@ -326,7 +326,7 @@ elif menu == "Modelo de Previsão":
                 )
         
                 fig = go.Figure(data=[trace1, trace2], layout=layout)
-                fig.update_yaxes(range=[10, 160])
+                #fig.update_yaxes(range=[10, 160])
                 st.plotly_chart(fig)
 
                 st.subheader(':gray[Tabela de Previsões de Preço por Data:]', divider='orange')
