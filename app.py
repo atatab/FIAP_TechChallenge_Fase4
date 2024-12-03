@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 from datetime import date, timedelta
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from model_lstm.model import predict, predict_dates, load_model_and_scaler, load_and_process_data, evaluate_lstm_model, create_sequences
-from util.layout import output_layout
 from PIL import Image
 
 
