@@ -39,7 +39,6 @@ fsspec==2024.6.1
 fugue==0.9.1
 gast==0.6.0
 grpcio==1.68.0
-grpcio-status==1.68.0
 h5py==3.11.0
 html5lib==1.1
 idna==3.7
@@ -97,7 +96,6 @@ platformdirs==4.2.2
 plotly==5.23.0
 polars==1.2.1
 prompt_toolkit==3.0.47
-proto-plus==1.25.0
 protobuf
 psutil==6.0.0
 ptyprocess==0.7.0
@@ -113,7 +111,6 @@ pytorch-lightning==2.3.3
 pytz==2024.1
 PyYAML==6.0.1
 pyzmq==26.0.3
-ray==2.32.0
 referencing==0.35.1
 requests==2.32.3
 requests-oauthlib==2.0.0
