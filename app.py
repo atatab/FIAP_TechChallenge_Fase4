@@ -1,5 +1,10 @@
+import os
 import streamlit as st
-from datetime import datetime, timedelta
+import pandas as pd
+import plotly.graph_objects as go
+from datetime import date, timedelta
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from model_lstm.model import predict, predict_dates, evaluate_lstm_model, create_sequences
 from PIL import Image
 
 
@@ -231,7 +236,7 @@ elif menu == "Modelo de Previsão":
 
 
     # Valores de exemplo para DATA_INICIAL e LIMITE_DIAS
-    DATA_INICIAL = datetime(2023, 1, 1)  # Substitua pela data inicial real
+    DATA_INICIAL = datetime(2000, 1, 1)  # Substitua pela data inicial real
     LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
 
     # Criando o container para o seletor de data
@@ -248,6 +253,75 @@ elif menu == "Modelo de Previsão":
             )
         with col2:
             st.write(f"Data selecionada: {end_date}")
+    
+    days = (end_date - DATA_INICIAL).days
+
+    sequence_length = 10
+
+    if st.button('Prever'):
+        with st.spinner('Realizando a previsão...'):
+            try:
+                forecast = predict(days, data_scaled, sequence_length)
+                if forecast is None:
+                    st.error("Ocorreu um erro durante a previsão. Verifique os logs para mais detalhes.")
+                    st.stop()
+                
+                forecast_dates = predict_dates(days, df)
+                
+                train_size = int(len(data_scaled) * 0.8)
+                X_test, y_test = create_sequences(data_scaled[train_size:], sequence_length)
+                r2_lstm, mse_lstm, mae_lstm, mape_lstm, rmse_lstm = evaluate_lstm_model(model_lstm, X_test, y_test, scaler)
+                
+                texto_descritivo = f"Performance do Modelo: R² = {round(r2_lstm, 5)}, MSE = {round(mse_lstm, 5)}, MAE = {round(mae_lstm, 5)}, MAPE = {round(mape_lstm, 5)}, RMSE = {round(rmse_lstm, 5)}"
+                titulo_grafico = "Modelo LSTM - Previsão preço do Petróleo"
+        
+                trace1 = go.Scatter(x=df['Data'], y=df['Close'], mode='lines', name='Dados Históricos')
+                trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
+        
+                layout = go.Layout(
+                    title=titulo_grafico,
+                    xaxis={'title': "Data"},
+                    yaxis={'title': "Preço do Petróleo (US$)"},
+                    legend={'x': 0.1, 'y': 0.9},
+                    annotations=[
+                        go.layout.Annotation(
+                            text=texto_descritivo,
+                            align='left',
+                            showarrow=False,
+                            xref='paper',
+                            yref='paper',
+                            x=0,
+                            y=1.1,
+                            bordercolor='black',
+                            borderwidth=1
+                        )
+                    ]
+                )
+        
+                fig = go.Figure(data=[trace1, trace2], layout=layout)
+                fig.update_yaxes(range=[60, 110])
+                st.plotly_chart(fig)
+
+                st.subheader(':gray[Tabela de Previsões de Preço por Data:]', divider='orange')
+                
+                # Montando a tabela com os resultados da previsão
+                forecast_df = pd.DataFrame({
+                    "Data": [date.strftime("%Y-%m-%d") for date in forecast_dates],  
+                    "Preço": forecast.flatten().round(2)  
+                })
+
+                st.write(forecast_df.set_index("Data")) 
+
+                st.success("Previsão concluída com sucesso! :white_check_mark:")
+            
+            except FileNotFoundError as fnf_error:
+                st.error(f"Erro ao encontrar arquivo: {fnf_error}")
+            
+            except ValueError as value_error:
+                st.error(f"Erro nos dados: {value_error}")
+            
+            except Exception as e:
+                st.error(f"Ocorreu um erro durante a previsão: {e}")
 
 elif menu == "Resumo Executivo do Projeto":
     st.title("Resumo Executivo do Projeto")
