@@ -233,129 +233,129 @@ elif menu == "Modelo de Previsão":
     e o comportamento projetado da série temporal.
     """)
 
+    with st.spinner('Carregando Modelo...'):
 
-
-    DATA_INICIAL = date(2024, 1, 1)  # Substitua pela data inicial real
-    LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
-
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath('src/fiap_techchallenge_fase4')))
-
-    model_path = os.path.join(base_dir, 'model_lstm', 'model_lstm.keras')
-    scaler_path = os.path.join(base_dir, 'model_lstm', 'scaler.joblib')
-    try:
-        model_lstm, scaler = load_model_and_scaler(model_path, scaler_path)
-    except FileNotFoundError:
-        st.error(f"Arquivo de modelo ou scaler não encontrado. Verifique os caminhos configurados.'{model_path}' '{scaler_path}'")
-        st.stop()
-    except Exception as e:
-        st.error(f"Erro ao carregar o modelo e o scaler: {e}")
-        st.stop()
-
-    data_corte = pd.to_datetime('2000-01-01')
-    try:
-        df, data_scaled, _ = load_and_process_data(data_corte)
-    except FileNotFoundError:
-        st.error("Arquivo de dados não encontrado. Verifique o caminho configurado.")
-        st.stop()
-    except Exception as e:
-        st.error(f"Erro ao carregar e preprocessar os dados: {e}")
-        st.stop()
-
-    # Definir a data inicial e o limite de dias para a previsão
-    DATA_INICIAL = date(2024, 11, 25)
-    LIMITE_DIAS = 30
-
-    # Criando o container para o seletor de data
-    with st.container():
-        col1, col2 = st.columns([2, 6])  # Criação de duas colunas com larguras diferentes
-        with col1:
-            min_date = DATA_INICIAL + timedelta(days=1)
-            max_date = DATA_INICIAL + timedelta(days=LIMITE_DIAS)
-            end_date = st.date_input(
-                "Escolha a data de previsão:", 
-                min_value=min_date, 
-                max_value=max_date,
-                value=min_date,
-            )
-        with col2:
-            st.write(f"Data selecionada: {end_date}")
+        DATA_INICIAL = date(2024, 1, 1)  # Substitua pela data inicial real
+        LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
     
-    days = (end_date - DATA_INICIAL).days
-
-    sequence_length = 10
-
-    if st.button('Prever'):
-        with st.spinner('Realizando a previsão...'):
-            try:
-                forecast = predict(days, data_scaled, sequence_length, model_lstm, scaler)
-                if forecast is None:
-                    st.error("Ocorreu um erro durante a previsão. Verifique os logs para mais detalhes.")
-                    st.stop()
-                
-                forecast_dates = predict_dates(days, df)
-                
-                train_size = int(len(data_scaled) * 0.8)
-                X_test, y_test = create_sequences(data_scaled[train_size:], sequence_length)
-                r2_lstm, mse_lstm, mae_lstm, rmse_lstm = evaluate_lstm_model(model_lstm, X_test, y_test, scaler)
-                
-                texto_descritivo = f"Performance do Modelo: R² = {round(r2_lstm, 5)}, MSE = {round(mse_lstm, 5)}, MAE = {round(mae_lstm, 5)}, RMSE = {round(rmse_lstm, 5)}"
-                titulo_grafico = "Modelo LSTM - Previsão preço do Petróleo"
-        
-                trace1 = go.Scatter(x=df['Data'], y=df['Close'], mode='lines', name='Dados Históricos')
-                trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
-                trace2.marker.color = 'red'
-
-                x_data1 = trace1.x
-                y_data1 = trace1.y
-                x_data2 = trace2.x
-                y_data2 = trace2.y
-                
-                x_range = [max(x_data1)- timedelta(days=len(trace2.x)*2), max(x_data2)+timedelta(days=1)]
-                y_range = [min(y_data2)-5, max(y_data2)+5]  
-                
-                layout = go.Layout(
-                    title=titulo_grafico,
-                    xaxis={'title': "Data", 'range': x_range},
-                    yaxis={'title': "Preço do Petróleo (US$)", 'range': y_range},
-                    legend={'x': 0.1, 'y': 0.9},
-                    annotations=[
-                        go.layout.Annotation(
-                            text=texto_descritivo,
-                            align='right',
-                            showarrow=False,
-                            xref='paper',
-                            yref='paper',
-                            x=0,
-                            y=1.1,
-                            bordercolor='black',
-                            borderwidth=1
-                        )
-                    ]
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath('src/fiap_techchallenge_fase4')))
+    
+        model_path = os.path.join(base_dir, 'model_lstm', 'model_lstm.keras')
+        scaler_path = os.path.join(base_dir, 'model_lstm', 'scaler.joblib')
+        try:
+            model_lstm, scaler = load_model_and_scaler(model_path, scaler_path)
+        except FileNotFoundError:
+            st.error(f"Arquivo de modelo ou scaler não encontrado. Verifique os caminhos configurados.'{model_path}' '{scaler_path}'")
+            st.stop()
+        except Exception as e:
+            st.error(f"Erro ao carregar o modelo e o scaler: {e}")
+            st.stop()
+    
+        data_corte = pd.to_datetime('2000-01-01')
+        try:
+            df, data_scaled, _ = load_and_process_data(data_corte)
+        except FileNotFoundError:
+            st.error("Arquivo de dados não encontrado. Verifique o caminho configurado.")
+            st.stop()
+        except Exception as e:
+            st.error(f"Erro ao carregar e preprocessar os dados: {e}")
+            st.stop()
+    
+        # Definir a data inicial e o limite de dias para a previsão
+        DATA_INICIAL = date(2024, 11, 25)
+        LIMITE_DIAS = 30
+    
+        # Criando o container para o seletor de data
+        with st.container():
+            col1, col2 = st.columns([2, 6])  # Criação de duas colunas com larguras diferentes
+            with col1:
+                min_date = DATA_INICIAL + timedelta(days=1)
+                max_date = DATA_INICIAL + timedelta(days=LIMITE_DIAS)
+                end_date = st.date_input(
+                    "Escolha a data de previsão:", 
+                    min_value=min_date, 
+                    max_value=max_date,
+                    value=min_date,
                 )
+            with col2:
+                st.write(f"Data selecionada: {end_date}")
         
-                fig = go.Figure(data=[trace1, trace2], layout=layout)
-                st.plotly_chart(fig)
-
-                st.subheader(':gray[Tabela de Previsões de Preço por Data:]', divider='orange')
+        days = (end_date - DATA_INICIAL).days
+    
+        sequence_length = 10
+    
+        if st.button('Prever'):
+            with st.spinner('Realizando a previsão...'):
+                try:
+                    forecast = predict(days, data_scaled, sequence_length, model_lstm, scaler)
+                    if forecast is None:
+                        st.error("Ocorreu um erro durante a previsão. Verifique os logs para mais detalhes.")
+                        st.stop()
+                    
+                    forecast_dates = predict_dates(days, df)
+                    
+                    train_size = int(len(data_scaled) * 0.8)
+                    X_test, y_test = create_sequences(data_scaled[train_size:], sequence_length)
+                    r2_lstm, mse_lstm, mae_lstm, rmse_lstm = evaluate_lstm_model(model_lstm, X_test, y_test, scaler)
+                    
+                    texto_descritivo = f"Performance do Modelo: R² = {round(r2_lstm, 5)}, MSE = {round(mse_lstm, 5)}, MAE = {round(mae_lstm, 5)}, RMSE = {round(rmse_lstm, 5)}"
+                    titulo_grafico = "Modelo LSTM - Previsão preço do Petróleo"
+            
+                    trace1 = go.Scatter(x=df['Data'], y=df['Close'], mode='lines', name='Dados Históricos')
+                    trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
+                    trace2.marker.color = 'red'
+    
+                    x_data1 = trace1.x
+                    y_data1 = trace1.y
+                    x_data2 = trace2.x
+                    y_data2 = trace2.y
+                    
+                    x_range = [max(x_data1)- timedelta(days=len(trace2.x)*2), max(x_data2)+timedelta(days=1)]
+                    y_range = [min(y_data2)-5, max(y_data2)+5]  
+                    
+                    layout = go.Layout(
+                        title=titulo_grafico,
+                        xaxis={'title': "Data", 'range': x_range},
+                        yaxis={'title': "Preço do Petróleo (US$)", 'range': y_range},
+                        legend={'x': 0.1, 'y': 0.9},
+                        annotations=[
+                            go.layout.Annotation(
+                                text=texto_descritivo,
+                                align='right',
+                                showarrow=False,
+                                xref='paper',
+                                yref='paper',
+                                x=0,
+                                y=1.1,
+                                bordercolor='black',
+                                borderwidth=1
+                            )
+                        ]
+                    )
+            
+                    fig = go.Figure(data=[trace1, trace2], layout=layout)
+                    st.plotly_chart(fig)
+    
+                    st.subheader(':gray[Tabela de Previsões de Preço por Data:]', divider='orange')
+                    
+                    # Montando a tabela com os resultados da previsão
+                    forecast_df = pd.DataFrame({
+                        "Data": [date.strftime("%Y-%m-%d") for date in forecast_dates],  
+                        "Preço": forecast.flatten().round(2)  
+                    })
+    
+                    st.write(forecast_df.set_index("Data")) 
+    
+                    st.success("Previsão concluída com sucesso! :white_check_mark:")
                 
-                # Montando a tabela com os resultados da previsão
-                forecast_df = pd.DataFrame({
-                    "Data": [date.strftime("%Y-%m-%d") for date in forecast_dates],  
-                    "Preço": forecast.flatten().round(2)  
-                })
-
-                st.write(forecast_df.set_index("Data")) 
-
-                st.success("Previsão concluída com sucesso! :white_check_mark:")
-            
-            except FileNotFoundError as fnf_error:
-                st.error(f"Erro ao encontrar arquivo: {fnf_error}")
-            
-            except ValueError as value_error:
-                st.error(f"Erro nos dados: {value_error}")
-            
-            except Exception as e:
-                st.error(f"Ocorreu um erro durante a previsão: {e}")
+                except FileNotFoundError as fnf_error:
+                    st.error(f"Erro ao encontrar arquivo: {fnf_error}")
+                
+                except ValueError as value_error:
+                    st.error(f"Erro nos dados: {value_error}")
+                
+                except Exception as e:
+                    st.error(f"Ocorreu um erro durante a previsão: {e}")
 
 elif menu == "Resumo Executivo do Projeto":
     st.title("Resumo Executivo do Projeto")
