@@ -149,10 +149,6 @@ tensorboardX==2.6.2.2
 tensorflow==2.17.0
 termcolor==2.4.0
 threadpoolctl==3.5.0
-torch==2.5.0.dev20240723
-torchaudio==2.4.0.dev20240723
-torchmetrics==1.4.0.post0
-torchvision==0.20.0.dev20240723
 tornado==6.4.1
 tqdm==4.66.4
 traitlets==5.14.3
