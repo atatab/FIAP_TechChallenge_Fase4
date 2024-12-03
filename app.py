@@ -4,7 +4,8 @@ import pandas as pd
 import plotly.graph_objects as go
 from datetime import date, timedelta
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
-from model_lstm.model import predict, predict_dates, evaluate_lstm_model, create_sequences
+from model_lstm.model import predict, predict_dates, load_model_and_scaler, load_and_process_data, evaluate_lstm_model, create_sequences
+from util.layout import output_layout
 from PIL import Image
 
 
@@ -235,9 +236,35 @@ elif menu == "Modelo de Previsão":
 
 
 
-    # Valores de exemplo para DATA_INICIAL e LIMITE_DIAS
-    DATA_INICIAL = datetime(2000, 1, 1)  # Substitua pela data inicial real
+    DATA_INICIAL = date(2000, 1, 1)  # Substitua pela data inicial real
     LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    model_path = os.path.join(base_dir, 'model_lstm', 'model_lstm.keras')
+    scaler_path = os.path.join(base_dir, 'model_lstm', 'scaler.joblib')
+    try:
+        model_lstm, scaler = load_model_and_scaler(model_path, scaler_path)
+    except FileNotFoundError:
+        st.error("Arquivo de modelo ou scaler não encontrado. Verifique os caminhos configurados.")
+        st.stop()
+    except Exception as e:
+        st.error(f"Erro ao carregar o modelo e o scaler: {e}")
+        st.stop()
+
+    data_corte = pd.to_datetime('2000-01-01')
+    try:
+        df, data_scaled, _ = load_and_process_data(data_corte)
+    except FileNotFoundError:
+        st.error("Arquivo de dados não encontrado. Verifique o caminho configurado.")
+        st.stop()
+    except Exception as e:
+        st.error(f"Erro ao carregar e preprocessar os dados: {e}")
+        st.stop()
+
+    # Definir a data inicial e o limite de dias para a previsão
+    DATA_INICIAL = date(2024, 11, 25)
+    LIMITE_DIAS = 30
 
     # Criando o container para o seletor de data
     with st.container():
@@ -270,9 +297,9 @@ elif menu == "Modelo de Previsão":
                 
                 train_size = int(len(data_scaled) * 0.8)
                 X_test, y_test = create_sequences(data_scaled[train_size:], sequence_length)
-                r2_lstm, mse_lstm, mae_lstm, mape_lstm, rmse_lstm = evaluate_lstm_model(model_lstm, X_test, y_test, scaler)
+                r2_lstm, mse_lstm, mae_lstm, rmse_lstm = evaluate_lstm_model(model_lstm, X_test, y_test, scaler)
                 
-                texto_descritivo = f"Performance do Modelo: R² = {round(r2_lstm, 5)}, MSE = {round(mse_lstm, 5)}, MAE = {round(mae_lstm, 5)}, MAPE = {round(mape_lstm, 5)}, RMSE = {round(rmse_lstm, 5)}"
+                texto_descritivo = f"Performance do Modelo: R² = {round(r2_lstm, 5)}, MSE = {round(mse_lstm, 5)}, MAE = {round(mae_lstm, 5)}, RMSE = {round(rmse_lstm, 5)}"
                 titulo_grafico = "Modelo LSTM - Previsão preço do Petróleo"
         
                 trace1 = go.Scatter(x=df['Data'], y=df['Close'], mode='lines', name='Dados Históricos')
@@ -286,7 +313,7 @@ elif menu == "Modelo de Previsão":
                     annotations=[
                         go.layout.Annotation(
                             text=texto_descritivo,
-                            align='left',
+                            align='right',
                             showarrow=False,
                             xref='paper',
                             yref='paper',
@@ -299,7 +326,7 @@ elif menu == "Modelo de Previsão":
                 )
         
                 fig = go.Figure(data=[trace1, trace2], layout=layout)
-                fig.update_yaxes(range=[60, 110])
+                fig.update_yaxes(range=[10, 160])
                 st.plotly_chart(fig)
 
                 st.subheader(':gray[Tabela de Previsões de Preço por Data:]', divider='orange')
