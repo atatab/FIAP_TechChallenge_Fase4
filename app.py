@@ -238,14 +238,14 @@ elif menu == "Modelo de Previsão":
     DATA_INICIAL = date(2000, 1, 1)  # Substitua pela data inicial real
     LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath('.')))
 
     model_path = os.path.join(base_dir, 'model_lstm', 'model_lstm.keras')
     scaler_path = os.path.join(base_dir, 'model_lstm', 'scaler.joblib')
     try:
         model_lstm, scaler = load_model_and_scaler(model_path, scaler_path)
     except FileNotFoundError:
-        st.error("Arquivo de modelo ou scaler não encontrado. Verifique os caminhos configurados.")
+        st.error(f"Arquivo de modelo ou scaler não encontrado. Verifique os caminhos configurados.'{model_path}' '{scaler_path}'")
         st.stop()
     except Exception as e:
         st.error(f"Erro ao carregar o modelo e o scaler: {e}")
