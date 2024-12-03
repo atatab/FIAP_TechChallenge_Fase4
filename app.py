@@ -302,9 +302,10 @@ elif menu == "Modelo de Previsão":
                 titulo_grafico = "Modelo LSTM - Previsão preço do Petróleo"
         
                 trace1 = go.Scatter(x=df['Data'], y=df['Close'], mode='lines', name='Dados Históricos')
-                trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', color='red', name='Previsão LSTM')
+                trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
         
                 layout = go.Layout(
+                    colorscale='icefire'
                     title=titulo_grafico,
                     xaxis={'title': "Data"},
                     yaxis={'title': "Preço do Petróleo (US$)"},
