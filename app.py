@@ -235,7 +235,7 @@ elif menu == "Modelo de Previsão":
 
 
 
-    DATA_INICIAL = date(2000, 1, 1)  # Substitua pela data inicial real
+    DATA_INICIAL = date(2024, 1, 1)  # Substitua pela data inicial real
     LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
 
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath('src/fiap_techchallenge_fase4')))
@@ -302,7 +302,7 @@ elif menu == "Modelo de Previsão":
                 titulo_grafico = "Modelo LSTM - Previsão preço do Petróleo"
         
                 trace1 = go.Scatter(x=df['Data'], y=df['Close'], mode='lines', name='Dados Históricos')
-                trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
+                trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', color='red', name='Previsão LSTM')
         
                 layout = go.Layout(
                     title=titulo_grafico,
