@@ -305,7 +305,7 @@ elif menu == "Modelo de Previsão":
                 trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
         
                 layout = go.Layout(
-                    colorscale='icefire'
+                    colorscale='icefire',
                     title=titulo_grafico,
                     xaxis={'title': "Data"},
                     yaxis={'title': "Preço do Petróleo (US$)"},
