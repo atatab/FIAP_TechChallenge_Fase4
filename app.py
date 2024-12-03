@@ -305,10 +305,18 @@ elif menu == "Modelo de Previsão":
                 trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
                 trace2.marker.color = 'red'
 
+                x_data1 = trace1.x
+                y_data1 = trace1.y
+                x_data2 = trace2.x
+                y_data2 = trace2.y
+                
+                x_range = [max(x_data1)- timedelta(days=len(trace2.x)*2), max(x_data2)+timedelta(days=1)]
+                y_range = [min(y_data2)-5, max(y_data2)+5]  
+                
                 layout = go.Layout(
                     title=titulo_grafico,
-                    xaxis={'title': "Data"},
-                    yaxis={'title': "Preço do Petróleo (US$)"},
+                    xaxis={'title': "Data", 'range': x_range},
+                    yaxis={'title': "Preço do Petróleo (US$)", 'range': y_range},
                     legend={'x': 0.1, 'y': 0.9},
                     annotations=[
                         go.layout.Annotation(
@@ -326,7 +334,6 @@ elif menu == "Modelo de Previsão":
                 )
         
                 fig = go.Figure(data=[trace1, trace2], layout=layout)
-                fig.update_yaxes(range=[10, 160])
                 st.plotly_chart(fig)
 
                 st.subheader(':gray[Tabela de Previsões de Preço por Data:]', divider='orange')
