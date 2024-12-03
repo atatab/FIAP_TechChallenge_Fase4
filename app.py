@@ -238,7 +238,7 @@ elif menu == "Modelo de Previsão":
     DATA_INICIAL = date(2000, 1, 1)  # Substitua pela data inicial real
     LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
 
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath('.')))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath('src/fiap_techchallenge_fase4')))
 
     model_path = os.path.join(base_dir, 'model_lstm', 'model_lstm.keras')
     scaler_path = os.path.join(base_dir, 'model_lstm', 'scaler.joblib')
