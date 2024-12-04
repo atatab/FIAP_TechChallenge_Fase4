@@ -235,9 +235,6 @@ elif menu == "Modelo de Previsão":
 
     with st.spinner('Carregando Modelo...'):
 
-        DATA_INICIAL = date(2024, 1, 1)  # Substitua pela data inicial real
-        LIMITE_DIAS = 30  # Substitua pelo número máximo de dias permitido
-    
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath('src/fiap_techchallenge_fase4')))
     
         model_path = os.path.join(base_dir, 'model_lstm', 'model_lstm.keras')
@@ -261,18 +258,16 @@ elif menu == "Modelo de Previsão":
             st.error(f"Erro ao carregar e preprocessar os dados: {e}")
             st.stop()
     
-        # Definir a data inicial e o limite de dias para a previsão
         DATA_INICIAL = date(2024, 11, 25)
         LIMITE_DIAS = 30
     
-        # Criando o container para o seletor de data
         with st.container():
-            col1, col2 = st.columns([2, 6])  # Criação de duas colunas com larguras diferentes
+            col1, col2 = st.columns([2, 6])
             with col1:
                 min_date = DATA_INICIAL + timedelta(days=1)
                 max_date = DATA_INICIAL + timedelta(days=LIMITE_DIAS)
                 end_date = st.date_input(
-                    "Escolha a data de previsão:", 
+                    "Escolha a data final para a previsão:", 
                     min_value=min_date, 
                     max_value=max_date,
                     value=min_date,
@@ -298,8 +293,8 @@ elif menu == "Modelo de Previsão":
                     X_test, y_test = create_sequences(data_scaled[train_size:], sequence_length)
                     r2_lstm, mse_lstm, mae_lstm, rmse_lstm = evaluate_lstm_model(model_lstm, X_test, y_test, scaler)
                     
-                    texto_descritivo = f"Performance do Modelo: R² = {round(r2_lstm, 5)}, MSE = {round(mse_lstm, 5)}, MAE = {round(mae_lstm, 5)}, RMSE = {round(rmse_lstm, 5)}"
-                    titulo_grafico = "Modelo LSTM - Previsão preço do Petróleo"
+                    description = f"Performance do Modelo: R² = {round(r2_lstm, 5)}, MSE = {round(mse_lstm, 5)}, MAE = {round(mae_lstm, 5)}, RMSE = {round(rmse_lstm, 5)}"
+                    plot_title = "Modelo LSTM - Previsão preço do Petróleo"
             
                     trace1 = go.Scatter(x=df['Data'], y=df['Close'], mode='lines', name='Dados Históricos')
                     trace2 = go.Scatter(x=forecast_dates, y=forecast.flatten(), mode='lines', name='Previsão LSTM')
@@ -314,13 +309,13 @@ elif menu == "Modelo de Previsão":
                     y_range = [min(y_data2)-5, max(y_data2)+5]  
                     
                     layout = go.Layout(
-                        title=titulo_grafico,
+                        title=plot_title,
                         xaxis={'title': "Data", 'range': x_range},
                         yaxis={'title': "Preço do Petróleo (US$)", 'range': y_range},
                         legend={'x': 0.1, 'y': 0.9},
                         annotations=[
                             go.layout.Annotation(
-                                text=texto_descritivo,
+                                text=description,
                                 align='right',
                                 showarrow=False,
                                 xref='paper',
@@ -376,7 +371,7 @@ elif menu == "Resumo Executivo do Projeto":
         2. Reações a crises econômicas e políticas.
         3. Tendências sazonais e ciclos de mercado.
         4. Mudanças na demanda global por energia.
-    - **Modelo de Previsão de Preços**: Criamos um modelo preditivo funcional, capaz de prever os preços do petróleo diariamente com uma margem de erro de [insira a métrica de erro aqui, como RMSE ou MAPE].
+    - **Modelo de Previsão de Preços**: Criamos um modelo preditivo funcional, capaz de prever os preços do petróleo diariamente com as seguintes metricas: MSE=0,00023 | MAE=0,0104 | RMSE=0,0152.
     - **Deploy do MVP**: O modelo foi integrado ao Streamlit como uma aplicação interativa para suporte à tomada de decisão.
     """)
 
